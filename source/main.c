@@ -10,6 +10,7 @@
 #include <stdbool.h>
 
 #include "dcMath.h"
+#include "projectile.h"
 #include "dcCamera.h"
 #include "dcRender.h"
 #include "dcLevel.h"
@@ -32,6 +33,7 @@ SDC_Render SecondPlayerRender;
 SDC_Camera Camera;
 SDC_Camera FirstPlayerCamera;
 SDC_Level MainLevel;
+SDC_Audio audio;
 
 // Display and draw environments, double buffered
 
@@ -158,6 +160,31 @@ void Display(SDC_Render* InRender, SDC_Camera* InCamera)
         TransMatrix(&CharacterTransform,  &MainLevel.Characters[i]->Location);
         dcRender_PreDrawMesh(&MainLevel, InCamera, &MainLevel.Characters[i]->Location, &MainLevel.Characters[i]->Rotation, &CharacterTransform);
         dcRender_DrawMesh(InRender, MainLevel.Characters[i]->Mesh, &CharacterTransform, MainLevel.Characters[i]->DrawParams);
+
+        //Tank Shooting
+        if(MainLevel.Characters[i]->bShot == 1){
+
+            MainLevel.Characters[i]->bShot = 0;
+               
+            TIM_IMAGE* tim_smile = (TIM_IMAGE*)malloc3(sizeof(TIM_IMAGE));
+
+            //We can move this structure initialization to a function
+            SDC_DrawParams DrawParams = {
+                .tim = tim_smile,
+                .constantColor = {255, 255, 255},
+                .bLighting = 1,
+                .bUseConstantColor = 1
+            };
+
+
+            SDC_DrawParams* DrawParamsPtr = (SDC_DrawParams*)malloc3(sizeof(SDC_DrawParams));
+            *DrawParamsPtr = DrawParams;
+
+
+            //dcLevel_AddObject(&MainLevel, &Box001_Mesh, &MainLevel.Characters[i]->Location, DrawParamsPtr, NULL); 
+            dcLevel_InitProjectile(&MainLevel, &Box001_Mesh, &MainLevel.Characters[i]->Location, DrawParamsPtr); 
+        }
+
     }
 
     //Draw Objects
@@ -176,6 +203,21 @@ void Display(SDC_Render* InRender, SDC_Camera* InCamera)
         dcRender_PreDrawMesh(&MainLevel, InCamera, &MainLevel.Objects[i]->Location, &MainLevel.Objects[i]->Rotation, &WorldTransform);
         dcRender_DrawMesh(InRender, MainLevel.Objects[i]->Mesh, &WorldTransform, MainLevel.Objects[i]->DrawParams);
     }
+
+        //Draw Projectiles
+   for(int i = 0; i < MainLevel.NumProjectiles; i++)
+    {
+UpdateProjectile(MainLevel.Projectiles[i]);
+        MATRIX WorldTransform;
+        //MainLevel.Objects[i]->Rotation.vy += 10;
+        RotMatrix(&MainLevel.Projectiles[i]->Rotation, &WorldTransform);
+        TransMatrix(&WorldTransform,  &MainLevel.Projectiles[i]->Location);
+        //GetParentTransform(MainLevel.Projectiles[i], &Transform, &WorldTransform);
+
+        dcRender_PreDrawMesh(&MainLevel, InCamera, &MainLevel.Projectiles[i]->Location, &MainLevel.Projectiles[i]->Rotation, &WorldTransform);
+        dcRender_DrawMesh(InRender, MainLevel.Projectiles[i]->Mesh, &WorldTransform, MainLevel.Projectiles[i]->DrawParams);
+    }
+
     dcRender_SwapBuffers(InRender);
 }
 
@@ -212,8 +254,7 @@ void Input()
 int main(void) 
 {    
 
-    SDC_Audio audio;
-    dcAudio_Init(&audio, 16);
+   // dcAudio_Init(&audio, 16);
     
     InitGame();   
     InitLevel();

@@ -48,6 +48,22 @@ SDC_Object* dcLevel_AddObject(SDC_Level *Level, SDC_Mesh3D* Mesh, VECTOR* Locati
     Level->MaxObjects++;   
     return Obj;
 }
+void dcLevel_InitProjectile(SDC_Level *Level, SDC_Mesh3D *Mesh, VECTOR *Location, SDC_DrawParams *DrawParams)
+{   
+    SDC_Projectile* NewProjectile = malloc3(sizeof(SDC_Projectile));
+    NewProjectile->Location = *Location; //<----- to Transform
+    SVECTOR Rot = {0,0,0};
+    NewProjectile->Rotation =Rot;
+    NewProjectile->Mesh = Mesh;
+    NewProjectile->DrawParams = DrawParams;
+    NewProjectile->Vox = 10;
+    NewProjectile->Voy = 10;
+   // NewProjectile->Init;
+    //NewProjectile->PlayerIndex = Level->NumCharacters;
+    //Malloc for every object? or with MaxArray size?
+    Level->Projectiles[Level->NumProjectiles] = NewProjectile;    
+    Level->NumProjectiles++;
+}
 
 void dcLevel_InitCharacter(SDC_Level *Level, SDC_Mesh3D *Mesh, VECTOR *Location, SDC_DrawParams *DrawParams)
 {   
@@ -64,6 +80,7 @@ void dcLevel_InitCharacter(SDC_Level *Level, SDC_Mesh3D *Mesh, VECTOR *Location,
     Level->Characters[Level->NumCharacters] = NewCharacter;    
     Level->NumCharacters++;
 }
+
 
 void GetParentTransform(SDC_Object* Object, MATRIX *Transform, MATRIX *OutTransform)
 { 

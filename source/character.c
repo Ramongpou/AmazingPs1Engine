@@ -5,6 +5,11 @@ void UpdateCharacter(SDC_Character* Character)
     int PlayerIndex = Character->PlayerIndex;
     u_long PadState = PadRead(0);
 
+    if ( Character->bIsAiming ==  1)
+    {
+        Character->bShooting = 1;
+    }
+
     SVECTOR IncrementalPosition = {0,0,0};
     if( _PAD(PlayerIndex,PADLup ) & PadState )
     {
@@ -22,6 +27,18 @@ void UpdateCharacter(SDC_Character* Character)
     {
         IncrementalPosition.vx -=10;
     }
+    if( _PAD(PlayerIndex,PADL1 ) & PadState )
+    {
+        if(Character->bIsAiming == 0)
+        {
+            printf("Aiming! %d \n",  PlayerIndex );
+            Character->bIsAiming = 1;
+        }
+        else{
+            Character->bShooting = 0;
+        }
+
+    }
     if( _PAD(0,PADRup ) & PadState )
     {
     }
@@ -33,6 +50,15 @@ void UpdateCharacter(SDC_Character* Character)
     }
     if( _PAD(0,PADRleft ) & PadState )
     {
+    }
+    if(  Character->bShooting == 1)
+    {
+        Character->bShooting = 0;
+        Character->bIsAiming = 0;
+        Character->bShot = 1;
+        printf(" Stop Shooting!\n");
+
+    
     }
     if(IncrementalPosition.vx != 0 || IncrementalPosition.vz != 0)
     {

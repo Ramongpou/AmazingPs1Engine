@@ -20,6 +20,9 @@ typedef struct SDC_Object
 
 typedef struct 
 {
+    int bShot;
+    int bIsAiming;
+    int bShooting;
     int PlayerIndex;
     VECTOR Location;
     SVECTOR Rotation;
@@ -34,12 +37,25 @@ typedef struct
     //.
 }SDC_Character;
 
+typedef struct SDC_Projectile
+{
+    int Vox;
+    int Voy;
+    VECTOR Location;
+    SVECTOR Rotation;
+    SDC_Mesh3D* Mesh;
+    SVECTOR Direction;
+    SDC_DrawParams* DrawParams;
+}SDC_Projectile;
+
 typedef struct SDC_Level
 {
     SDC_Object** Objects;
+    SDC_Projectile** Projectiles;
     SDC_Character** Characters;
     int NumCharacters;
     int NumObjects;
+    int NumProjectiles;
     int MaxObjects;
 
 // Back color  
@@ -64,6 +80,8 @@ MATRIX ColorMatrix;
 void dcLevel_InitLight(SDC_Level* Level, CVECTOR* AmbientColor);
 void dcLevel_SetLight(SDC_Level* Level, int LightIndex, SVECTOR* LightDirection, SVECTOR* LightColor);
 SDC_Object* dcLevel_AddObject(SDC_Level* Level, SDC_Mesh3D* Mesh, VECTOR* Location, SDC_DrawParams* DrawParams, SDC_Object* Parent);
+
+void dcLevel_InitProjectile(SDC_Level *Level, SDC_Mesh3D *Mesh, VECTOR *Location, SDC_DrawParams *DrawParams);
 
 void dcLevel_InitCharacter(SDC_Level* Level, SDC_Mesh3D* Mesh, VECTOR* Location, SDC_DrawParams* DrawParams);
 void GetParentTransform(SDC_Object* Object, MATRIX* Transform, MATRIX* OutTransform);
